@@ -1,3 +1,5 @@
 instance/
 proj.env
 migrations
+.gitignore
+__pycache__

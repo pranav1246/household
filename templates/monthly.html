@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Monthly Activity Report</title>
+    <style>
+       
+    </style>
+</head>
+<body>
+    <h2>Monthly Activity Report for {{ report.customer_name }}</h2>
+    <p>Dear {{ report.customer_name }},</p>
+    <p>Here is your activity summary for the past month:</p>
+
+    <p><strong>Services Requested:</strong> {{ report.requested_count }}</p>
+    <p><strong>Services Closed:</strong> {{ report.closed_count }}</p>
+
+    <h3>Service Details</h3>
+    <table border="1">
+        <thead>
+            <tr>
+                <th>Service ID</th>
+                <th>Date Requested</th>
+                <th>Status</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for service in report.services %}
+            <tr>
+                <td>{{ service.id }}</td>
+                <td>{{ service.date_of_request.strftime('%Y-%m-%d') }}</td>
+                <td>{{ service.status }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+    <p>Thank you for using our services!</p>
+</body>
+</html>

@@ -1,4 +1,4 @@
-from flask import current_app as app, jsonify,send_file,render_template
+from flask import current_app as app, jsonify,send_file,render_template,send_from_directory
 from celery.result import AsyncResult
 from applications.task import export_closed_requests_as_csv
 
@@ -21,3 +21,7 @@ def get_csv(task_id):
 def home():
     return render_template('index.html')
 
+
+@app.route('/uploads/<path:filename>')
+def serve_uploaded_file(filename):
+    return send_from_directory('uploads', filename)

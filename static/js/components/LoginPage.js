@@ -40,12 +40,9 @@ export default Vue.component("login-form", {
         });
 
         const result = await response.json();
-        console.log(result)
+     
         if (response.ok) {
-          alert("Login successful!");
-          localStorage.setItem('token',result .token)
-          localStorage.setItem('role',result .role)
-          this.$router.push({path:'/',query:{role:result.role}})
+          this.$store.dispatch('login', { role: result.role, token:result.token });
         } else {
           alert(result.message || "Login failed.");
         }

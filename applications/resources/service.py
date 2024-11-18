@@ -2,10 +2,39 @@ from applications.utils import service_resource_parser
 from flask_restful import Resource
 from flask_security import auth_required, roles_required
 from applications.database.models import db, Service
+from flask import jsonify
 
 class ServiceResource(Resource):
-    @auth_required("token")
-    @roles_required("Admin")
+
+    def get(self, service_id=None):
+        if service_id:
+            service = Service.query.get(service_id)
+            if not service:
+                return jsonify({"error": "Service not found"}), 404
+
+            return jsonify({
+                "id": service.id,
+                "name": service.name,
+                "description": service.description,
+                "base_price": service.base_price,
+                "time_required": service.time_required
+            })
+        
+        services = Service.query.all()
+        service_data = [
+            {
+                "id": service.id,
+                "name": service.name,
+                "description": service.description,
+                "base_price": service.base_price,
+                "time_required": service.time_required
+            }
+            for service in services
+        ]
+        return jsonify({"services": service_data})
+
+    # @auth_required("token")
+    # @roles_required("Admin")
     def post(self):
         parser=service_resource_parser()
         args = parser.parse_args()
@@ -24,7 +53,7 @@ class ServiceResource(Resource):
             description=description,
             base_price=base_price,
             time_required=time_required,
-            created_by=1  # Assuming created_by field to be admin user ID for demo purposes
+            created_by=1  
         )
 
         # Add to session and commit
@@ -33,8 +62,8 @@ class ServiceResource(Resource):
 
         return {"message": "Service created successfully.", "service_id": new_service.id}, 201
     
-    @auth_required("token")
-    @roles_required("Admin")
+    # @auth_required("token")
+    # @roles_required("Admin")
     def put(self, service_id):
         parser = service_resource_parser()
         args = parser.parse_args()
@@ -53,8 +82,8 @@ class ServiceResource(Resource):
 
         return {"message": "Service updated successfully.", "service_id": service.id}, 200
 
-    @auth_required("token")
-    @roles_required("Admin")
+    # @auth_required("token")
+    # @roles_required("Admin")
     def delete(self, service_id):
         # Retrieve the service by ID
         service = Service.query.get(service_id)

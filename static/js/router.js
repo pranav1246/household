@@ -1,13 +1,13 @@
-import LoginPage from "./components/LoginPage.js"
 import Home from "./components/Home.js"
-
+import ProfSignup from "./components/Professional/Signup.js"
+import CustomerSignup from "./components/Customer/CustomerSignup.js"
 
 
 
 const routes=[
-    {path:'/',component:Home, name:'Home'},
-    {path:'/login',component:LoginPage, name:'Login' },
-    // {path:'/users',component:Users}
+  {path: '/',name: 'Home',component: Home,},
+{ path: "/customer-signup", name: "CustomerSignup", component: CustomerSignup },
+  { path: "/professional-signup", name: "ProfessionalSignup", component: ProfSignup },
 ]
 
 export default new VueRouter({

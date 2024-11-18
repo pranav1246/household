@@ -1,21 +1,11 @@
 import router from "./router.js"
-import Navbar from "./components/Navbar.js"
-
+import store from "./store.js"
+import Home from "./components/Home.js"
 
 new Vue({
   el:"#app",
   vuetify: new Vuetify(),
-  template:
-  `<v-app>
-   <v-main>
-  <v-container>
-   <Navbar /> <router-view /> 
-  </v-container>
-</v-main>
-  </v-app>`,
+  store,
+  render: (h) => h(Home),
   router:router,
-  components:{
-    Navbar,
-  },
- 
 })

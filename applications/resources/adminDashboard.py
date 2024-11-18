@@ -29,7 +29,9 @@ class AdminDashboardResource(Resource):
                 "service_type": pro.service_type.name,  # Assuming `service_type` references Service model
                 "experience_years": pro.experience_years,
                 "rating": pro.rating,
-                "is_active": pro.is_active
+                "is_active": pro.is_active,
+                "attached_docs_path":pro.attached_docs_path,
+
             }
             for pro in professionals
         ]
@@ -78,22 +80,18 @@ class AdminDashboardResource(Resource):
             db.session.commit()
             return {"message": f"Professional status toggled to {professional_details.is_active}"}, 200
         else:
-            # If user is a customer, toggle `active` in User model
             user.active = not user.active
             db.session.commit()
             return {"message": f"Customer status toggled to {user.active}"}, 200
         
    
-    # @auth_required("token")
-    # @roles_required("Admin")
+  
     def delete(self, professional_id):
-        # Find the professional entry
+       
         professional = ProfessionalDetails.query.filter_by(id=professional_id).first()
         
         if not professional:
             return {"message": "Professional not found."}, 404
-
-        # Retrieve the user linked to the professional
         user = User.query.filter_by(id=professional.user_id).first()
         
         if not user:
@@ -103,14 +101,9 @@ class AdminDashboardResource(Resource):
     
 
             db.session.delete(professional)
-
-        
             db.session.delete(user)
-            
             db.session.commit()
-
             return {"message": "Professional and associated user details deleted successfully."}, 200
-
         except Exception as e:
             db.session.rollback()
             return {"message": f"An error occurred: {str(e)}"}, 500

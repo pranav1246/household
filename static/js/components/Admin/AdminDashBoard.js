@@ -2,7 +2,8 @@ export default Vue.component("admin-dashboard", {
     template: `
       <v-container>
         <h1 class="text-center">Admin Dashboard</h1>
-
+        
+         <v-btn color="danger" @click="downloadReport">Download Report</v-btn>
         <edit-service-form
         v-if="editingService || addingService"
         :service="editingService || newService"
@@ -83,7 +84,18 @@ export default Vue.component("admin-dashboard", {
             item-value="id"
             class="elevation-1"
             dense
-          ></v-data-table>
+          >
+          <template v-slot:item.action="{ item }">
+          <v-btn 
+           small 
+           color="red" 
+           :disabled="!item.active"
+           @click="toggleStatus(item.id, false)"
+         >
+           Block
+         </v-btn>
+          </template>
+          </v-data-table>
         </v-card>
         </div>
       </v-container>
@@ -116,6 +128,7 @@ export default Vue.component("admin-dashboard", {
           { text: "Professional ID", value: "professional_id" },
           { text: "Date of Request", value: "date_of_request" },
           { text: "Remarks", value: "remarks" },
+          { text: "Action", value: "action", sortable: false },
         ],
         editingService: null,
         addingService: false,
@@ -229,6 +242,7 @@ export default Vue.component("admin-dashboard", {
             if (user) {
               user.is_active = approve; 
             }
+            alert("Status changed")
       
           } else {
             alert(result.message || "Failed to toggle status.");
@@ -260,6 +274,38 @@ export default Vue.component("admin-dashboard", {
               alert("An error occurred.");
             });
         }
+
+      },
+      async downloadReport(){
+        fetch('/download-csv')
+        .then((response)=>response.json())
+        .then((result)=>{
+           if(result.success){
+            task_id=result.task_id
+           }
+        }).catch((error) => {
+          console.error("Error deleting :", error);
+          alert("An error occurred.");
+        });
+
+        fetch(`get-csv/${task_id}`)
+        .then((response)=>response.json())
+        .then((result)=>{
+          if(result.success){
+            const blob=result.blob()
+            const fileUrl = window.URL.createObjectURL(blob);
+            const link = document.createElement("a");
+            link.href = fileUrl;
+            link.download = "result.csv"; 
+            document.body.appendChild(link);
+            link.click(); 
+            document.body.removeChild(link); 
+            window.URL.revokeObjectURL(fileUrl); 
+          }
+        }).catch((error) => {
+          console.error("Error deleting :", error);
+          alert("An error occurred.");
+        });
 
       }
     },

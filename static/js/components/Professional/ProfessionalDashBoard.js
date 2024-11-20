@@ -17,29 +17,13 @@ export default Vue.component("professional-dashboard", {
               class="elevation-1"
               item-value="id"
             >
-              <template v-slot:top>
-                <v-toolbar flat>
-                  <v-toolbar-title>Pending Service Requests</v-toolbar-title>
-                </v-toolbar>
-              </template>
-  
-              <template v-slot:body="{ items }">
-                <tr v-for="item in items" :key="item.id">
-                  <td>{{ item.request_id }}</td>
-                  <td>{{ item.customer_name }}</td>
-                  <td>{{ item.phone_number }}</td>
-                  <td>{{ item.address }}</td>
-                  <td>{{ item.pincode }}</td>
-                  <td>{{ item.status }}</td>
-                  <td>
+            <template v-slot:item.action="{ item }">
                     <v-btn small color="success" @click="acceptRequest(item.request_id)">
                       Accept
                     </v-btn>
                     <v-btn small color="error" @click="rejectRequest(item.request_id)">
                       Reject
                     </v-btn>
-                  </td>
-                </tr>
               </template>
             </v-data-table>
           </v-col>
@@ -54,24 +38,9 @@ export default Vue.component("professional-dashboard", {
               :items="closedRequests"
               class="elevation-1"
               item-value="id"
+              dense
             >
-              <template v-slot:top>
-                <v-toolbar flat>
-                  <v-toolbar-title>Closed Service Requests</v-toolbar-title>
-                </v-toolbar>
-              </template>
-  
-              <template v-slot:body="{ items }">
-                <tr v-for="item in items" :key="item.id">
-                  <td>{{ item.request_id }}</td>
-                  <td>{{ item.customer_name }}</td>
-                  <td>{{ item.phone_number }}</td>
-                  <td>{{ item.address }}</td>
-                  <td>{{ item.pincode }}</td>
-                  <td>{{ item.status }}</td>
-                  <td>{{ item.rating }}</td>
-                  <td>{{ item.review }}</td>
-                </tr>
+            <template v-slot:item.action="{ item }">
               </template>
             </v-data-table>
           </v-col>
@@ -122,13 +91,50 @@ export default Vue.component("professional-dashboard", {
           console.error("Error fetching requests:", error);
         }
       },
-      acceptRequest(requestId) {
-        // Logic for accepting a request
-        console.log(`Accepting request: ${requestId}`,'skks');
+      async acceptRequest(requestId) {
+        try {
+          const response = await fetch(`/api/accept-reject-service/${requestId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization-Token": localStorage.getItem("token")
+
+            },
+            body: JSON.stringify({ action: "accept" }),
+          });
+    
+          const data = await response.json();
+          if (response.ok) {
+            alert(data.message);
+            this.fetchRequests(); 
+          } else {
+            alert(data.message || "Failed to accept the request.");
+          }
+        } catch (error) {
+          console.error("Error accepting request:", error);
+        }
       },
-      rejectRequest(requestId) {
-        // Logic for rejecting a request
-        console.log(`Rejecting request: ${requestId}`,'sksk');
+      async rejectRequest(requestId) {
+        try {
+          const response = await fetch(`/api/accept-reject-service/${requestId}`, {
+            method: "PUT",
+            headers: {
+              "Content-Type": "application/json",
+              "Authorization-Token": localStorage.getItem("token")
+            },
+            body: JSON.stringify({ action: "reject" }),
+          });
+    
+          const data = await response.json();
+          if (response.ok) {
+            alert(data.message);
+            this.fetchRequests(); // Refresh the data after the action
+          } else {
+            alert(data.message || "Failed to reject the request.");
+          }
+        } catch (error) {
+          console.error("Error rejecting request:", error);
+        }
       },
     },
     created() {

@@ -4,26 +4,24 @@ export default {
       <!-- App Name or Logo -->
       <v-app-bar-nav-icon></v-app-bar-nav-icon>
       <v-toolbar-title>My App</v-toolbar-title>
-
-      <!-- Spacer pushes the remaining items to the right -->
       <v-spacer></v-spacer>
 
-      <!-- Navigation Buttons -->
+   
       <v-btn text class="mx-2" :to="{ path: '/' }">
-        <v-icon left>mdi-home</v-icon> Home
+        Home
       </v-btn>
       <v-btn text class="mx-2" :to="{ path: '/search' }">
-        <v-icon left>mdi-magnify</v-icon> Search
+        Search
       </v-btn>
       <v-btn text class="mx-2" :to="{ path: '/summary' }">
-        <v-icon left>mdi-chart-bar</v-icon> Summary
+        Summary
       </v-btn>
 
       <!-- Profile Button (Professionals & Customers Only) -->
       <v-btn 
         text 
         class="mx-2" 
-        v-if="role === 'Professional' || role === 'Customer'" 
+        v-if="role === 'Service Professional' || role === 'Customer'" 
         :to="{ path: '/profile' }"
       >
         <v-icon left>mdi-account</v-icon> Profile

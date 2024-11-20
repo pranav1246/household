@@ -6,9 +6,10 @@ from applications.resources.service_request import ServiceRequestResource
 from applications.resources.adminDashboard import AdminDashboardResource
 from applications.resources.professionalDashboard import ProfessionalRequestsAPI
 from applications.resources.customerDashbaord import CustomerDashboardAPI
-from applications.resources.SearchAPIs import AdminSearchAPI,CustomerSearchAPI,ProfessionalSearchAPI
+from applications.resources.SearchAPIs import GlobalSearchAPI
 from applications.resources.addReview import AddReviewAPI
 from applications.resources.UpdateUSer import UpdateCustomerDetailsAPI,UpdateProfessionalDetailsAPI
+from applications.resources.DashBoardAPI import DashboardStatsAPI
 
 api=Api(prefix='/api')
 
@@ -21,12 +22,11 @@ api.add_resource(ServiceRequestResource,'/service-request','/service-request/<in
 api.add_resource(AdminDashboardResource,'/admin-dashboard','/change-status','/delete-professional/<int:professional_id>')
 api.add_resource(ProfessionalRequestsAPI, '/professional-dashboard','/accept-reject-service/<int:request_id>')
 api.add_resource(CustomerDashboardAPI, '/customer-dashboard','/close-service/<int:request_id>')
-api.add_resource(AdminSearchAPI, '/admin/search')
-api.add_resource(ProfessionalSearchAPI, '/professional/search')
-api.add_resource(CustomerSearchAPI, '/customer/search')
+api.add_resource(GlobalSearchAPI, '/search')
 api.add_resource(AddReviewAPI, '/add-review')
 api.add_resource(UpdateCustomerDetailsAPI, '/update-customer/<int:customer_id>')
 api.add_resource(UpdateProfessionalDetailsAPI, '/update-professional/<int:professional_id>')
+api.add_resource(DashboardStatsAPI,'/stats-api')
 
 
 

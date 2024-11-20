@@ -5,6 +5,9 @@ import LoginPage from "./LoginPage.js";
 import Navbar from "./Navbar.js";
 import CustomerSignup from "./Customer/CustomerSignup.js";
 import ProfSignup from "./Professional/Signup.js";
+import Search from "./Search.js";
+import SummaryChart from "./Summary.js";
+
 
 const Home = {
   template: `
@@ -12,6 +15,8 @@ const Home = {
       <v-main>
         <v-container>
           <Navbar />
+
+          <!-- Show Login Page if on Home Route and User Role is Not Defined -->
           <v-card v-if="isLoginRoute && !userRole">
             <v-card-title class="text-h5 text-center">Welcome to Our Platform</v-card-title>
             <v-card-text>
@@ -26,26 +31,38 @@ const Home = {
               </div>
             </v-card-text>
           </v-card>
+
+          <!-- Show Appropriate Component Based on Route Name -->
           <div v-else>
-            <CustomerSignup v-if="$route.name==='CustomerSignup'" />
-            <ProfSignup v-if="$route.name==='ProfessionalSignup'" />
-            <AdminDashBoard v-if="userRole === 'Admin'" />
-            <ProfessionalDashBoard v-if="userRole === 'Service Professional'" />
-            <CustomerDashBoard v-if="userRole === 'Customer'" />
+            <component :is="currentComponent" />
           </div>
         </v-container>
       </v-main>
     </v-app>
   `,
+
   computed: {
     userRole() {
-      return this.$store.state.userRole || null;
+      return this.$store.state.userRole || null; // Fetch user role from Vuex store
     },
     isLoginRoute() {
-      console.log('Current route name:', this.$route.name);
-      return this.$route.name === 'Home' || this.$route.name===null
+      return this.$route.name === 'Home'; // Define what counts as the login route
+    },
+    currentComponent() {
+      // Determine the component to render based on the route name and user role
+      if (this.$route.name === 'Search') return 'Search';
+      if (this.$route.name === 'Summary') return 'SummaryChart';
+      if (this.$route.name === 'CustomerSignup') return 'CustomerSignup';
+      if (this.$route.name === 'ProfessionalSignup') return 'ProfSignup';
+
+      if (this.userRole === 'Admin') return 'AdminDashBoard';
+      if (this.userRole === 'Service Professional') return 'ProfessionalDashBoard';
+      if (this.userRole === 'Customer') return 'CustomerDashBoard';
+
+      return null; // Default to null if no matching route
     },
   },
+
   components: {
     AdminDashBoard,
     ProfessionalDashBoard,
@@ -54,6 +71,8 @@ const Home = {
     Navbar,
     CustomerSignup,
     ProfSignup,
+    Search,
+    SummaryChart,
   },
 };
 

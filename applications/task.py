@@ -16,7 +16,7 @@ def send_daily_reminders():
     pending_requests = (
         db.session.query(ServiceRequest, User)
         .join(User, ServiceRequest.professional_id == User.id)
-        .filter(ServiceRequest.status.in_(["requested", "assigned"]))
+        .filter(ServiceRequest.status.in_( "assigned"))
         .all()
     )
     print(pending_requests)

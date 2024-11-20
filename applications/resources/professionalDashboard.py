@@ -5,10 +5,10 @@ from applications.database.models import db, ServiceRequest, User,Review
 from datetime import datetime
 
 class ProfessionalRequestsAPI(Resource):
-    # @auth_required('token')  # Ensure the user is authenticated
-    # @roles_required('Service Professional')  # Accessible only by users with the Professional role
+    # @auth_required('token')  
+    # @roles_required('Service Professional')  
     def get(self):
-        # Query pending service requests
+        # professional_id = current_user.id
         pending_requests = (
             db.session.query(
                 ServiceRequest.id.label("request_id"),
@@ -19,7 +19,7 @@ class ProfessionalRequestsAPI(Resource):
                 ServiceRequest.status
             )
             .join(User, ServiceRequest.customer_id == User.id)
-            .filter(ServiceRequest.status.in_(['assigned', 'requested']))
+            .filter(ServiceRequest.status.in_([ 'requested','rejected']))
             .all()
         )
         
@@ -74,8 +74,11 @@ class ProfessionalRequestsAPI(Resource):
             "pending_requests": pending_data,
             "closed_requests": closed_data
         })
-    # @auth_required('token')
-    # @roles_required('Service Professional')  
+   
+
+
+    @auth_required('token')
+    @roles_required('Service Professional')  
     def put(self, request_id):
         professional_id = current_user.id
 
@@ -84,41 +87,29 @@ class ProfessionalRequestsAPI(Resource):
         if not service_request:
             return {"message": "Service request not found"}, 404
 
-        # Check if the service request is completed
-        if service_request.status == 'closed':
-            return {"message": "Service request is already closed"}, 400
-
-        # Get the action (accept, reject, close)
+        # Parse the action from the request body
         data = request.get_json()
         action = data.get("action")
 
         if action == "accept":
-            # Only unassigned requests can be accepted
-            if service_request.status != 'requested':
+            # Only allow accepting unprocessed (requested) requests
+            if service_request.status != 'requested' and service_request.status != 'rejected':
                 return {"message": "Service request already processed"}, 400
-            # Update professional_id and status
+            # Assign the professional and update the status
             service_request.professional_id = professional_id
             service_request.status = 'assigned'
 
         elif action == "reject":
-            # Only unassigned requests can be rejected
-            if service_request.status != 'requested':
+            # Only allow rejecting unprocessed (requested) requests
+            if service_request.status != 'requested' and service_request.status != 'assigned':
                 return {"message": "Service request already processed"}, 400
-            # Update status to rejected
+            # Set status to rejected and remove professional_id
             service_request.status = 'rejected'
-
-        elif action == "close":
-            # Only assigned requests can be closed
-            if service_request.status != 'assigned':
-                return {"message": "Service request cannot be closed in its current state"}, 400
-            # Update status to closed and set the date_of_completion
-            service_request.status = 'closed'
-            service_request.date_of_completion = datetime.now()
+            service_request.professional_id = None  # Remove professional assignment
 
         else:
             return {"message": "Invalid action"}, 400
 
-        # Commit changes to the database
+        # Save changes to the database
         db.session.commit()
         return {"message": f"Service request {action}ed successfully"}, 200
-        

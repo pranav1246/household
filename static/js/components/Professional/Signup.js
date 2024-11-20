@@ -60,12 +60,14 @@ export default Vue.component("professional-signup", {
             required
           ></v-text-field>
 
-          <!-- Service Name Field -->
-          <v-text-field
-            v-model="formData.service_name"
-            label="Service Name"
-            required
-          ></v-text-field>
+          <v-select
+          :items="serviceTypes"
+          item-text="name"
+          item-value="id"
+          label="Service Type"
+          v-model="formData.service_name"
+          required
+        ></v-select>
 
           <!-- File Upload Field -->
           <v-file-input
@@ -106,6 +108,10 @@ export default Vue.component("professional-signup", {
           },
           attachedDocs: null,
           loading: false,
+          serviceTypes: [], 
+      formData: {
+        service_type_id: null,
+      },
         };
       },
       methods: {
@@ -116,11 +122,8 @@ export default Vue.component("professional-signup", {
           }
     
           this.loading = true;
-    
           try {
             const formData = new FormData();
-    
-            // Append form fields
             Object.keys(this.formData).forEach((key) => {
               formData.append(key, this.formData[key]);
             });
@@ -161,5 +164,22 @@ export default Vue.component("professional-signup", {
           };
           this.attachedDocs = null;
         },
+        async fetchServiceTypes() {
+          try {
+            const response = await fetch("/all-service");
+            if (response.ok) {
+              const data = await response.json();
+              this.serviceTypes = data.service_types; 
+            } else {
+              alert("Failed to fetch service types.");
+            }
+          } catch (error) {
+            console.error("Error fetching service types:", error);
+            alert("An error occurred while fetching service types.");
+          }
+        },
+      },
+      created() {
+        this.fetchServiceTypes(); 
       },
     });

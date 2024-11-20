@@ -43,7 +43,8 @@ class AdminDashboardResource(Resource):
                 "customer_id": request.customer_id,
                 "professional_id": request.professional_id,
                 "date_of_request": request.date_of_request,
-                "remarks": request.remarks
+                "remarks": request.remarks,
+                "active": request.customer.active,
             }
             for request in service_requests
         ]

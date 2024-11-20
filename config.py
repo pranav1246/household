@@ -15,4 +15,5 @@ class Config:
     MAIL_PORT = 1025                      
     MAIL_USERNAME = 'memail@example.com'
     MAIL_PASSWORD = ''
-    MAIL_DEFAULT_SENDER = 'memail@example.com'
+    MAIL_DEFAULT_SENDER = 'memail@example.com',
+    SECURITY_TOKEN_AUTHENTICATION_METHODS='token'

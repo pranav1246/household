@@ -1,14 +1,23 @@
 from flask import jsonify,request
 from flask_restful import Resource
 from flask_security import auth_required, roles_required,current_user
-from applications.database.models import db, ServiceRequest, User,Review
+from applications.database.models import db, ServiceRequest, User,Review,ProfessionalDetails
 from datetime import datetime
 
 class ProfessionalRequestsAPI(Resource):
-    # @auth_required('token')  
-    # @roles_required('Service Professional')  
+    @auth_required('token')  
+    @roles_required('Service Professional')  
     def get(self):
-        # professional_id = current_user.id
+        # Get the current professional's ID and specialization
+        professional_id = current_user.id
+        professional = ProfessionalDetails.query.get(professional_id)
+        
+        if not professional:
+            return {"message": "Professional not found"}, 404
+        
+        specialization = professional.service_type_id 
+        
+        # Query pending service requests for the professional's specialization
         pending_requests = (
             db.session.query(
                 ServiceRequest.id.label("request_id"),
@@ -16,10 +25,15 @@ class ProfessionalRequestsAPI(Resource):
                 User.phone_number,
                 User.address,
                 User.pincode,
+                ServiceRequest.remarks,
+                ServiceRequest.date_of_request,
                 ServiceRequest.status
             )
             .join(User, ServiceRequest.customer_id == User.id)
-            .filter(ServiceRequest.status.in_([ 'requested','rejected']))
+            .filter(
+                ServiceRequest.service_id  == specialization,  
+                ServiceRequest.status.in_(['requested', 'rejected'])
+            )
             .all()
         )
         
@@ -31,13 +45,18 @@ class ProfessionalRequestsAPI(Resource):
                 User.phone_number,
                 User.address,
                 User.pincode,
+                ServiceRequest.remarks,
+                ServiceRequest.date_of_request,
                 ServiceRequest.status,
                 Review.rating,
                 Review.comments.label("review")
             )
             .join(User, ServiceRequest.customer_id == User.id)
             .outerjoin(Review, ServiceRequest.id == Review.service_request_id)
-            .filter(ServiceRequest.status == 'closed')
+            .filter(
+                ServiceRequest.service_id == specialization,  # Match specialization
+                ServiceRequest.status == 'closed'
+            )
             .all()
         )
 
@@ -49,6 +68,8 @@ class ProfessionalRequestsAPI(Resource):
                 "phone_number": req.phone_number,
                 "address": req.address,
                 "pincode": req.pincode,
+                "remarks": req.remarks,
+                "date_of_request": req.date_of_request.strftime('%Y-%m-%d %H:%M:%S'),
                 "status": req.status
             }
             for req in pending_requests
@@ -62,6 +83,8 @@ class ProfessionalRequestsAPI(Resource):
                 "phone_number": req.phone_number,
                 "address": req.address,
                 "pincode": req.pincode,
+                "remarks": req.remarks,
+                "date_of_request": req.date_of_request.strftime('%Y-%m-%d %H:%M:%S'),
                 "status": req.status,
                 "rating": req.rating,
                 "review": req.review
@@ -74,7 +97,6 @@ class ProfessionalRequestsAPI(Resource):
             "pending_requests": pending_data,
             "closed_requests": closed_data
         })
-   
 
 
     @auth_required('token')

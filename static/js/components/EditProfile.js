@@ -1,79 +1,107 @@
-const EditProfile={
-template:`
-<v-container>
-  <v-form ref="form" v-model="valid">
-    <v-text-field label="Name" v-model="formData.name" required></v-text-field>
-    <v-text-field label="Phone Number" v-model="formData.phone_number" required></v-text-field>
-    <v-text-field label="Address" v-model="formData.address"></v-text-field>
-    <v-text-field label="Pincode" v-model="formData.pincode"></v-text-field>
-    <v-select
-      :items="serviceTypes"
-      label="Service Type"
-      v-model="formData.service_type_id"
-      required
-    ></v-select>
-    <v-text-field
-      label="Experience (Years)"
-      v-model="formData.experience_years"
-      type="number"
-      required
-    ></v-text-field>
-    <v-switch label="Active" v-model="formData.is_active"></v-switch>
-    <v-btn color="primary" @click="saveProfile">Save</v-btn>
-  </v-form>
-</v-container>
-`,
-data() {
+const EditProfile = {
+  template: `
+    <v-container>
+      <v-card>
+        <v-card-title>
+          <h2>Edit Profile</h2>
+        </v-card-title>
+
+        <v-card-text>
+          <v-form ref="form">
+          
+            <v-text-field
+              label="Email"
+              v-model="formData.email"
+              required
+            ></v-text-field>
+
+
+            <v-text-field
+              label="Phone Number"
+              v-model="formData.phone_number"
+              required
+            ></v-text-field>
+
+        
+            <v-text-field
+              label="Address"
+              v-model="formData.address"
+            ></v-text-field>
+            <v-text-field
+              label="Pincode"
+              v-model="formData.pincode"
+              type="number"
+            ></v-text-field>
+
+       
+            <v-text-field
+              v-if="userRole === 'Service Professional'"
+              label="Years of Experience"
+              v-model="formData.experience_years"
+              type="number"
+            ></v-text-field>
+  
+          </v-form>
+        </v-card-text>
+
+        <v-card-actions>
+          <v-btn color="primary" @click="submitForm">Save</v-btn>
+          <v-btn color="red" @click="cancelEdit">Cancel</v-btn>
+        </v-card-actions>
+      </v-card>
+    </v-container>
+  `,
+  data() {
     return {
-      valid: true,
-      serviceTypes: [], 
       formData: {
-        name: "",
+        email: "",
         phone_number: "",
         address: "",
         pincode: "",
-        service_type_id: null,
         experience_years: null,
-        is_active: true,
       },
+      userRole: "",
+      userId: null, 
     };
   },
   methods: {
-    async saveProfile() {
+    
+    async submitForm() {
       try {
-        const response = await fetch("/api/edit-professional-profile", {
+        this.userRole = this.$store.state.userRole 
+        this.userId = this.$store.state.user_id
+        const url =
+          this.userRole === "Customer"
+            ? `/api/update-customer/${this.userId}`
+            : `/api/update-professional/${this.userId}`;
+
+        const response = await fetch(url, {
           method: "PUT",
-          headers: { "Content-Type": "application/json" },
+          headers: {
+            "Content-Type": "application/json",
+            "Authorization-Token": localStorage.getItem("token"),
+          },
           body: JSON.stringify(this.formData),
         });
 
+        const result = await response.json();
         if (response.ok) {
-          alert("Profile updated successfully!");
+          alert(result.message);
+          this.$emit("profileUpdated");
         } else {
-          const error = await response.json();
-          alert(error.message || "Failed to update profile.");
+          alert("Failed to update profile.");
         }
       } catch (error) {
         console.error("Error updating profile:", error);
-        alert("An error occurred.");
       }
+    },
+    cancelEdit() {
+      this.$emit("cancelEdit");
     },
   },
   created() {
-    // Fetch existing profile data to populate the form
-    this.fetchProfileData();
-  },
-  async fetchProfileData() {
-    try {
-      const response = await fetch("/api/professional-profile");
-      if (response.ok) {
-        const data = await response.json();
-        this.formData = data;
-      } else {
-        alert("Failed to load profile data.");
-      }
-    } catch (error) {
-      console.error("Error loading profile data:", error);
-    }
+    this.fetchUserProfile(); 
   },
 };
+
+export default EditProfile;

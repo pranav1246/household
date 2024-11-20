@@ -5,8 +5,8 @@ from applications.database.models import db, ServiceRequest
 from applications.utils import service_request_parser,update_service_req_parser
 
 class ServiceRequestResource(Resource):
-    @auth_required("token")
-    @roles_required("Customer")
+    @auth_required('token')
+    @roles_required('Customer')
     def post(self):
         parser = service_request_parser()
         args = parser.parse_args()

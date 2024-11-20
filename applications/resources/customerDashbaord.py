@@ -5,8 +5,8 @@ from applications.database.models import Service, ServiceRequest, db
 from datetime import datetime
 
 class CustomerDashboardAPI(Resource):
-    # @auth_required("token")
-    # @roles_required("Customer")
+    @auth_required("token")
+    @roles_required("Customer")
     def get(self):
         # Fetch all available services
         services = Service.query.all()
@@ -22,7 +22,7 @@ class CustomerDashboardAPI(Resource):
         ]
         
         # Fetch current user's service history
-        customer_id = 2   #current_user.id  # Assuming current_user is available via flask-security
+        customer_id =current_user.id 
         service_history = ServiceRequest.query.filter_by(customer_id=customer_id).all()
         history_data = [
             {
@@ -40,8 +40,8 @@ class CustomerDashboardAPI(Resource):
             "service_history": history_data
         })
     
-    # @auth_required('token')
-    # @roles_required('Service Professional')  
+    @auth_required('token')
+    @roles_required('Service Professional')  
     def put(self, request_id):
         # customer_id = current_user.id
         service_request = ServiceRequest.query.get(request_id)

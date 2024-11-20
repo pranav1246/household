@@ -6,8 +6,6 @@ export default Vue.component("professional-dashboard", {
             <h1>Professional Dashboard</h1>
           </v-col>
         </v-row>
-  
-        <!-- Pending Service Requests Table -->
         <v-row>
           <v-col>
             <h2>Pending Service Requests</h2>
@@ -57,6 +55,7 @@ export default Vue.component("professional-dashboard", {
           { text: "Address", value: "address" },
           { text: "Pincode", value: "pincode" },
           { text: "Status", value: "status" },
+          {text:"Remarks",value:"remarks"},
           { text: "Action", value: "action", sortable: false },
         ],
         closedHeaders: [
@@ -78,7 +77,11 @@ export default Vue.component("professional-dashboard", {
     methods: {
       async fetchRequests() {
         try {
-          const response = await fetch("/api/professional-dashboard");
+          const response = await fetch("/api/professional-dashboard", {
+            method: "GET",
+            headers: { "Authorization-Token": localStorage.getItem("token") },
+          });
+         
           const data = await response.json();
           console.log(data.pending_requests)
           if (response.ok) {
@@ -128,7 +131,7 @@ export default Vue.component("professional-dashboard", {
           const data = await response.json();
           if (response.ok) {
             alert(data.message);
-            this.fetchRequests(); // Refresh the data after the action
+            this.fetchRequests(); 
           } else {
             alert(data.message || "Failed to reject the request.");
           }

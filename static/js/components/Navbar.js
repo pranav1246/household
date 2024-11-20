@@ -1,3 +1,4 @@
+import EditProfile from "./EditProfile.js";
 export default {
   template: `
     <v-app-bar app color="primary" dark>
@@ -17,15 +18,27 @@ export default {
         Summary
       </v-btn>
 
-      <!-- Profile Button (Professionals & Customers Only) -->
+      
       <v-btn 
         text 
         class="mx-2" 
         v-if="role === 'Service Professional' || role === 'Customer'" 
-        :to="{ path: '/profile' }"
+        @click="showEditProfile = true"
       >
         <v-icon left>mdi-account</v-icon> Profile
       </v-btn>
+
+      <v-dialog v-model="showEditProfile" max-width="600px">
+      <v-card>
+        <edit-profile
+          :user-role="userRole"
+          :user-id="userId"
+          @profileUpdated="handleProfileUpdated"
+          @cancelEdit="showEditProfile = false"
+        />
+
+      </v-card>
+    </v-dialog>
 
       <!-- Logout Button -->
       <v-btn 
@@ -47,9 +60,28 @@ export default {
       return !!this.$store.state.token; 
     },
   },
+  data() {
+    return {
+      showEditProfile: false, // Toggles the modal
+      userRole: "", // To store the role of the logged-in user
+      userId: null, // To store the ID of the logged-in user
+    };
+  },
   methods: {
     logout() {
       this.$store.dispatch('logout');
+      localStorage.setItem('user_id')
+    },
+    async fetchUserInfo() {
+      
+        this.userRole =$store.state.userRole
+        this.userId =$store.state.user_id
+      
+    },
+    handleProfileUpdated() {
+      this.showEditProfile = false;
+      alert("Profile updated successfully!");
     },
   },
+  components:{EditProfile},
 };

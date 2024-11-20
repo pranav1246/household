@@ -1,8 +1,6 @@
 export default Vue.component("admin-dashboard", {
     template: `
       <v-container>
-        <h1 class="text-center">Admin Dashboard</h1>
-        
          <v-btn color="danger" @click="downloadReport">Download Report</v-btn>
         <edit-service-form
         v-if="editingService || addingService"
@@ -29,9 +27,9 @@ export default Vue.component("admin-dashboard", {
           >
            <template v-slot:item.action="{ item }" @click="showService(item.id)">
 
-              <v-btn small color="blue" @click="editService(item.id)">Edit</v-btn>
+              <v-btn small color="blue" @click="editService(item.id)"><v-icon>mdi-pencil</v-icon></v-btn>
              
-              <v-btn small color="red" @click="deleteService(item.id)">Delete</v-btn>
+              <v-btn small color="red" @click="deleteService(item.id)"><v-icon>mdi-delete</v-icon></v-btn>
             </template>
           </v-data-table>
         </v-card>

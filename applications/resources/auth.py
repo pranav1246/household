@@ -16,7 +16,7 @@ class UserLogin(Resource):
         if not user:
             return {"message": "user not found"}, 404
         if check_password_hash(user.password, data.get("password")):
-            return {"token":user.get_auth_token(),"email":user.email,"role":user.roles[0].name }
+            return {"token":user.get_auth_token(),"user_id":user.id,"role":user.roles[0].name }
 
         else:
             return {"message": "wrong password"}, 400

@@ -40,9 +40,9 @@ export default Vue.component("login-form", {
         });
 
         const result = await response.json();
-     
+        console.log(result)
         if (response.ok) {
-          this.$store.dispatch('login', { role: result.role, token:result.token });
+          this.$store.dispatch('login', { role: result.role, token:result.token ,user_id:result.user_id});
         } else {
           alert(result.message || "Login failed.");
         }

@@ -1,0 +1,87 @@
+services:
+  - name: household-services-web
+    type: web
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+    startCommand: |
+      flask db upgrade && flask run --host=0.0.0.0 --port=10000
+    envVars:
+      - key: DATABASE_URL
+        fromGroup: household
+      - key: CELERY_BROKER_URL
+        fromGroup: household
+      - key: CELERY_RESULT_BACKEND
+        fromGroup: household
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        fromGroup: household
+      - key: SECURITY_PASSWORD_SALT
+        fromGroup: household
+      - key: GOOGLE_CHAT_WEBHOOK_URL
+        fromGroup: household
+    plan: free
+    autoDeploy: true
+
+  - name: household-services-redis
+    type: redis
+    plan: free
+
+  - name: household-services-worker
+    type: worker
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+    startCommand: |
+      celery -A app:celery_app worker --loglevel=info
+    envVars:
+      - key: DATABASE_URL
+         fromGroup: household
+      - key: CELERY_BROKER_URL
+        fromGroup: household
+      - key: CELERY_RESULT_BACKEND
+        fromGroup: household
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        fromGroup: household
+      - key: SECURITY_PASSWORD_SALT
+        fromGroup: household
+      - key: GOOGLE_CHAT_WEBHOOK_URL
+        fromGroup: household
+
+  - name: household-services-scheduler
+    type: worker
+    env: python
+    buildCommand: |
+      pip install -r requirements.txt
+    startCommand: |
+      celery -A app:celery_app beat --loglevel=info
+    envVars:
+      - key: DATABASE_URL
+        fromGroup: household
+      - key: CELERY_BROKER_URL
+        fromGroup: household
+      - key: CELERY_RESULT_BACKEND
+        fromGroup: household
+      - key: FLASK_ENV
+        value: production
+      - key: SECRET_KEY
+        fromGroup: household
+      - key: SECURITY_PASSWORD_SALT
+        fromGroup: household
+      - key: GOOGLE_CHAT_WEBHOOK_URL
+        fromGroup: household
+
+  - name: household
+    type: postgres
+    plan: free
+    properties:
+      databaseName:
+      user: 
+         - key: DB_USER
+           fromGroup: household
+      password:
+         - key: DB_PASSWORD
+           fromGroup: household

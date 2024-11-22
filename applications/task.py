@@ -5,8 +5,11 @@ from flask_mail import Mail, Message
 from datetime import datetime,timedelta
 from flask import render_template , current_app as app
 import csv
+from dotenv import load_dotenv
+import os
 
 
+load_dotenv(dotenv_path=os.path.join(os.path.dirname(os.path.dirname(__file__)), '.env'))
 
 
 mail = Mail()
@@ -19,9 +22,9 @@ def send_daily_reminders():
         .filter(ServiceRequest.status.in_( ['assigned']))
         .all()
     )
-    print(pending_requests)
+  
     for request, professional in pending_requests:
-        print(f"Sending reminder to {professional.name}")
+        
         send_google_chat_message(professional.name)
     return "OK"
 
@@ -30,7 +33,7 @@ def send_google_chat_message(name):
         "text": f"Hello {name}, you have pending service requests. Please accept or reject them."
     }
     headers = {"Content-Type": "application/json"}
-    webhook_url='https://chat.googleapis.com/v1/spaces/AAAAN7Xs3H8/messages?key=AIzaSyDdI0hCZtE6vySjMm-WEfRq3CPzqKqqsHI&token=dfDKda30Bt01VSPlm_lc_lzEC0eZ_Xj_8GY1fYN5tGE'
+    webhook_url=os.getenv('GOOGLE_CHAT_WEBHOOK_URL')
     response=requests.post(webhook_url, json=message, headers=headers)
     if response.status_code == 200:
         print("Message sent successfully.")
@@ -50,7 +53,7 @@ def send_monthly_activity_report():
     monthly_data = (
         db.session.query(ServiceRequest, User)
         .join(User, ServiceRequest.customer_id == User.id)
-        # .filter(ServiceRequest.date_of_request.between(start_date, end_date))
+        .filter(ServiceRequest.date_of_request.between(start_date, end_date))
         .all()
     )
     print(monthly_data)

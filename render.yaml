@@ -1,35 +1,18 @@
 services:
+  # Web service (Flask app)
   - name: household-services-web
     type: web
     env: python
     buildCommand: |
       pip install -r requirements.txt
     startCommand: |
-      flask db upgrade && flask run --host=0.0.0.0 --port=10000
+      flask db upgrade && python seed.py && flask run --host=0.0.0.0 --port=$PORT
     envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: household
-          property: connectionString
-      - key: CELERY_BROKER_URL
-        fromGroup: household
-      - key: CELERY_RESULT_BACKEND
-        fromGroup: household
-      - key: FLASK_ENV
-        value: production
-      - key: SECRET_KEY
-        fromGroup: household
-      - key: SECURITY_PASSWORD_SALT
-        fromGroup: household
-      - key: GOOGLE_CHAT_WEBHOOK_URL
-        fromGroup: household
+      - fromGroup: household
     plan: free
     autoDeploy: true
 
-  - name: household-services-redis
-    type: redis
-    plan: free
-
+  # Worker service (Celery worker)
   - name: household-services-worker
     type: worker
     env: python
@@ -38,23 +21,9 @@ services:
     startCommand: |
       celery -A app:celery_app worker --loglevel=info
     envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: household
-          property: connectionString
-      - key: CELERY_BROKER_URL
-        fromGroup: household
-      - key: CELERY_RESULT_BACKEND
-        fromGroup: household
-      - key: FLASK_ENV
-        value: production
-      - key: SECRET_KEY
-        fromGroup: household
-      - key: SECURITY_PASSWORD_SALT
-        fromGroup: household
-      - key: GOOGLE_CHAT_WEBHOOK_URL
-        fromGroup: household
+      - fromGroup: household
 
+  # Scheduler service (Celery Beat)
   - name: household-services-scheduler
     type: worker
     env: python
@@ -63,24 +32,4 @@ services:
     startCommand: |
       celery -A app:celery_app beat --loglevel=info
     envVars:
-      - key: DATABASE_URL
-        fromDatabase:
-          name: household
-          property: connectionString
-      - key: CELERY_BROKER_URL
-        fromGroup: household
-      - key: CELERY_RESULT_BACKEND
-        fromGroup: household
-      - key: FLASK_ENV
-        value: production
-      - key: SECRET_KEY
-        fromGroup: household
-      - key: SECURITY_PASSWORD_SALT
-        fromGroup: household
-      - key: GOOGLE_CHAT_WEBHOOK_URL
-        fromGroup: household
-
-databases:
-  - name: household
-    plan: free
-    region: oregon 
+      - fromGroup: household

@@ -37,7 +37,7 @@ services:
       celery -A app:celery_app worker --loglevel=info
     envVars:
       - key: DATABASE_URL
-         fromGroup: household
+        fromGroup: household
       - key: CELERY_BROKER_URL
         fromGroup: household
       - key: CELERY_RESULT_BACKEND

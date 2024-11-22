@@ -23,13 +23,6 @@ with app.app_context():
 
         },
         {
-            'email': 'pro@example.com',
-            'password': '1234',
-            'name': 'Professional User',
-            'phone_number': '9876543210',
-            'roles': ['Service Professional']
-        },
-        {
             'email': 'customer@example.com',
             'password': '1234',
             'name': 'Customer User',

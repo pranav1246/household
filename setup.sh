@@ -1,8 +1,5 @@
 #!/bin/bash
 
-echo "Activating virtual environment..."
-source proj.env/bin/activate
-
 echo "Installing dependencies..."
 pip install -r requirements.txt
 

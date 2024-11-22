@@ -8,7 +8,9 @@ services:
       flask db upgrade && flask run --host=0.0.0.0 --port=10000
     envVars:
       - key: DATABASE_URL
-        fromGroup: household
+        fromDatabase:
+          name: household
+          property: connectionString
       - key: CELERY_BROKER_URL
         fromGroup: household
       - key: CELERY_RESULT_BACKEND
@@ -37,7 +39,9 @@ services:
       celery -A app:celery_app worker --loglevel=info
     envVars:
       - key: DATABASE_URL
-        fromGroup: household
+        fromDatabase:
+          name: household
+          property: connectionString
       - key: CELERY_BROKER_URL
         fromGroup: household
       - key: CELERY_RESULT_BACKEND
@@ -60,7 +64,9 @@ services:
       celery -A app:celery_app beat --loglevel=info
     envVars:
       - key: DATABASE_URL
-        fromGroup: household
+        fromDatabase:
+          name: household
+          property: connectionString
       - key: CELERY_BROKER_URL
         fromGroup: household
       - key: CELERY_RESULT_BACKEND
@@ -74,14 +80,7 @@ services:
       - key: GOOGLE_CHAT_WEBHOOK_URL
         fromGroup: household
 
+databases:
   - name: household
-    type: database
     plan: free
-    properties:
-      databaseName:
-      user: 
-         - key: DB_USER
-           fromGroup: household
-      password:
-         - key: DB_PASSWORD
-           fromGroup: household
+    region: oregon 

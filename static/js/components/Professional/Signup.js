@@ -104,14 +104,11 @@ export default Vue.component("professional-signup", {
             experience_years: "",
             address: "",
             pincode: "",
-            service_name: "",
+            service_name: ""
           },
           attachedDocs: null,
           loading: false,
           serviceTypes: [], 
-      formData: {
-        service_type_id: null,
-      },
         };
       },
       methods: {
@@ -128,7 +125,7 @@ export default Vue.component("professional-signup", {
               formData.append(key, this.formData[key]);
             });
     
-            // Append file
+            
             formData.append("attached_docs", this.attachedDocs);
     
             const response = await fetch("/api/signup/professional", {
@@ -140,7 +137,7 @@ export default Vue.component("professional-signup", {
     
             if (response.ok) {
               alert("Professional signed up successfully!");
-              this.resetForm();
+              this.$router.push({ name: "Home" });
             } else {
               alert(result.message || "Failed to sign up.");
             }

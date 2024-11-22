@@ -49,7 +49,7 @@ class Service(db.Model):
     created_by = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     date_created = db.Column(db.DateTime, default=datetime.now)
 
-    # Relationships
+
     service_requests = db.relationship('ServiceRequest', backref='service', lazy=True)
     professionals = db.relationship('ProfessionalDetails', backref='service_type', lazy=True)
 

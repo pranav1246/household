@@ -5,7 +5,7 @@ from applications.database.models import db, Service
 from flask import jsonify
 
 class ServiceResource(Resource):
-
+    
     def get(self, service_id=None):
         if service_id:
             service = Service.query.get(service_id)
@@ -33,8 +33,8 @@ class ServiceResource(Resource):
         ]
         return jsonify({"services": service_data})
 
-    # @auth_required("token")
-    # @roles_required("Admin")
+    @auth_required("token")
+    @roles_required("Admin")
     def post(self):
         parser=service_resource_parser()
         args = parser.parse_args()
@@ -43,11 +43,8 @@ class ServiceResource(Resource):
         base_price = args['base_price']
         time_required = args['time_required']
 
-        # Check if service with the same name already exists
-        if Service.query.filter_by(name=name).first():
-            return {"message": "Service with this name already exists."}, 400
 
-        # Create a new Service instance
+       
         new_service = Service(
             name=name,
             description=description,
@@ -56,14 +53,14 @@ class ServiceResource(Resource):
             created_by=1  
         )
 
-        # Add to session and commit
+     
         db.session.add(new_service)
         db.session.commit()
 
         return {"message": "Service created successfully.", "service_id": new_service.id}, 201
     
-    # @auth_required("token")
-    # @roles_required("Admin")
+    @auth_required("token")
+    @roles_required("Admin")
     def put(self, service_id):
         parser = service_resource_parser()
         args = parser.parse_args()
@@ -82,8 +79,8 @@ class ServiceResource(Resource):
 
         return {"message": "Service updated successfully.", "service_id": service.id}, 200
 
-    # @auth_required("token")
-    # @roles_required("Admin")
+    @auth_required("token")
+    @roles_required("Admin")
     def delete(self, service_id):
         # Retrieve the service by ID
         service = Service.query.get(service_id)

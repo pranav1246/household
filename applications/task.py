@@ -5,7 +5,7 @@ from flask_mail import Mail, Message
 from datetime import datetime,timedelta
 from flask import render_template , current_app as app
 import csv
-from io import StringIO
+
 
 
 
@@ -16,7 +16,7 @@ def send_daily_reminders():
     pending_requests = (
         db.session.query(ServiceRequest, User)
         .join(User, ServiceRequest.professional_id == User.id)
-        .filter(ServiceRequest.status.in_( "assigned"))
+        .filter(ServiceRequest.status.in_( ['assigned']))
         .all()
     )
     print(pending_requests)
@@ -47,15 +47,14 @@ def send_monthly_activity_report():
     start_date = (now.replace(day=1) - timedelta(days=1)).replace(day=1)
     end_date = now.replace(day=1) - timedelta(days=1)
     
-    # Query the database for services created or closed in the previous month
     monthly_data = (
         db.session.query(ServiceRequest, User)
         .join(User, ServiceRequest.customer_id == User.id)
-        .filter(ServiceRequest.date_of_request.between(start_date, end_date))
+        # .filter(ServiceRequest.date_of_request.between(start_date, end_date))
         .all()
     )
     print(monthly_data)
-    # Generate report for each customer
+
     customer_reports = {}
     for request, customer in monthly_data:
         if customer.email not in customer_reports:
@@ -66,23 +65,22 @@ def send_monthly_activity_report():
                 'services': []
             }
         
-        # Update counts based on status
         if request.status == "requested":
             customer_reports[customer.email]['requested_count'] += 1
         elif request.status == "closed":
             customer_reports[customer.email]['closed_count'] += 1
         
-        # Add service detail to report
+     
         customer_reports[customer.email]['services'].append(request)
 
-    # Send email for each customer
+    
     for email, report in customer_reports.items():
         send_email_report(email, report)
 
         
 
 def send_email_report(email, report_data):
-    # Render the email HTML template with report data
+  
     html_content = render_template('monthly.html', report=report_data)
     
     with app.app_context(): 
@@ -97,7 +95,7 @@ def send_email_report(email, report_data):
 
 @shared_task(ignore_result=False)
 def export_closed_requests_as_csv():
-    # Query data
+    
     closed_requests = ServiceRequest.query.with_entities(
         ServiceRequest.service_id,
         ServiceRequest.customer_id,
@@ -105,16 +103,15 @@ def export_closed_requests_as_csv():
         ServiceRequest.date_of_request,
         ServiceRequest.remarks
     ).filter(ServiceRequest.status == "closed").all()
-    
-    # Define the CSV filename
+   
     filename = "report.csv"
     
-    # Write data to a CSV file
+  
     with open(filename, mode='w', newline='', encoding='utf-8') as file:
         writer = csv.writer(file)
-        # Write header
+       
         writer.writerow(["Service ID", "Customer ID", "Professional ID", "Date of request", "Remarks"])
-        # Write data rows
+       
         for row in closed_requests:
             writer.writerow(row)
     

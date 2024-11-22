@@ -5,7 +5,7 @@ import SearchResult from "./components/Search.js"
 import SummaryChart from "./components/Summary.js"
 import BookService from "./components/Customer/BookService.js"
 import Review from "./components/Customer/Review.js"
-// import EditProfile from "./components/EditProfile.js"
+import LoginPage from "./components/LoginPage.js"
 
 
 const routes=[
@@ -15,8 +15,8 @@ const routes=[
   {path:"/search",name: "Search" , component:SearchResult},
   {path:"/summary",name:"Summary",component:SummaryChart},
   {path:'/book-service',name:'BookService',component:BookService},
-  {path:'/review',name:Review,component:Review},
-  // {path:'/edit-profile',name:EditProfile,component:EditProfile}
+  {path:'/review',name:'Review',component:Review},
+ {path:'/login',name:'Login',component:LoginPage}
 ]
 
 export default new VueRouter({

@@ -106,7 +106,7 @@ export default Vue.component("customer-dashboard", {
       try {
         const response = await fetch("/api/customer-dashboard", {
           method: "GET",
-          headers: { "Authorization-Token": localStorage.getItem("token") },
+        headers: { "Authorization-Token": localStorage.getItem("token") },   
         });
         const data = await response.json();
         if (response.ok) {
@@ -134,17 +134,7 @@ export default Vue.component("customer-dashboard", {
       }
     },
     async refreshServiceHistory() {
-      try {
-        const response = await fetch("/api/customer-dashboard");
-        const data = await response.json();
-        if (response.ok) {
-          this.serviceHistory = data.service_history;
-        } else {
-          console.error("Failed to refresh service history");
-        }
-      } catch (error) {
-        console.error("Error refreshing service history:", error);
-      }
+      this.fetchDashboardData();
     },
     async closeService(requestId) {
       try {

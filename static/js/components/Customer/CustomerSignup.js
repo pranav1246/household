@@ -97,7 +97,7 @@ const CustomerSignup = {
   
             if (response.ok) {
                 alert("Signup successful! Please log in.")
-              this.$router.push({ name: "Login" });
+              this.$router.push({ name: "Home" });
             } else {
                 
               const error = await response.json();

@@ -74,7 +74,10 @@ export default Vue.component("book-service", {
         console.log("Payload:", payload);
         const response = await fetch("/api/service-request", {
           method: "POST",
-          headers: { "Content-Type": "application/json" ,"Authorization-Token":localStorage.getItem("token")},
+          headers: {
+              "Content-Type": "application/json",
+              "Authorization-Token": localStorage.getItem("token")
+            },
           body: JSON.stringify({
             service_id: this.selectedService.id,
             remarks: this.remarks,
@@ -82,7 +85,8 @@ export default Vue.component("book-service", {
         });
         const data = await response.json();
         if (response.ok) {
-          this.$emit("service-booked", data); // Notify parent
+          alert("booked")
+          this.$emit("service-booked", data); 
           this.dialog = false;
           this.selectedService = null;
           this.remarks = "";

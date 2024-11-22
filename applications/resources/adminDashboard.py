@@ -3,15 +3,17 @@ from flask_security import auth_required, roles_required
 from applications.database.models import Service, ProfessionalDetails, ServiceRequest,User,db
 from flask import jsonify 
 from flask_restful import reqparse
+from applications.instance import cache
 
 
 
 
 class AdminDashboardResource(Resource):
-    # @auth_required('token')
-    # @roles_required("Admin")
+    @auth_required('token')
+    @roles_required("Admin")
+    @cache.cached(timeout=300) 
     def get(self):
-        # Fetch all services, professionals, and service requests
+      
         services = Service.query.all()
         professionals = ProfessionalDetails.query.all()
         service_requests = ServiceRequest.query.all()
@@ -24,9 +26,9 @@ class AdminDashboardResource(Resource):
         
         professional_data = [
             {
-                "id": pro.id,
-                "name": pro.user.name,  # Accessing `name` from related User model
-                "service_type": pro.service_type.name,  # Assuming `service_type` references Service model
+                "id": pro.user_id,
+                "name": pro.user.name,  
+                "service_type": pro.service_type.name,  
                 "experience_years": pro.experience_years,
                 "rating": pro.rating,
                 "is_active": pro.is_active,
@@ -56,8 +58,8 @@ class AdminDashboardResource(Resource):
         })
     
 
-    # @auth_required("token")
-    # @roles_required("Admin")
+    @auth_required("token")
+    @roles_required("Admin")
     def put(self):
         
         parser = reqparse.RequestParser()
@@ -66,30 +68,36 @@ class AdminDashboardResource(Resource):
         
         user_id = args["user_id"]
 
-        # Query the User and ProfessionalDetails tables
+   
         user = User.query.get(user_id)
         
         if not user:
             return {"message": "User not found"}, 404
 
-        # Check if the user has a ProfessionalDetails record to determine type
+      
         professional_details = ProfessionalDetails.query.filter_by(user_id=user_id).first()
+        
 
         if professional_details:
-            # If user is a professional, toggle `is_active` in ProfessionalDetails
+       
             professional_details.is_active = not professional_details.is_active
             db.session.commit()
+            cache.clear()
+            
             return {"message": f"Professional status toggled to {professional_details.is_active}"}, 200
         else:
             user.active = not user.active
             db.session.commit()
+            cache.clear()
+
             return {"message": f"Customer status toggled to {user.active}"}, 200
         
    
-  
+    @auth_required("token")
+    @roles_required("Admin")
     def delete(self, professional_id):
        
-        professional = ProfessionalDetails.query.filter_by(id=professional_id).first()
+        professional = ProfessionalDetails.query.filter_by(user_id=professional_id).first()
         
         if not professional:
             return {"message": "Professional not found."}, 404
@@ -104,6 +112,8 @@ class AdminDashboardResource(Resource):
             db.session.delete(professional)
             db.session.delete(user)
             db.session.commit()
+            cache.clear()
+
             return {"message": "Professional and associated user details deleted successfully."}, 200
         except Exception as e:
             db.session.rollback()

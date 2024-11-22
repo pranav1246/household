@@ -1,6 +1,6 @@
-from flask import request, jsonify, session, make_response
+from flask import request
 from flask_restful import Resource
-from werkzeug.security import check_password_hash
+from flask_security.utils import verify_password
 from applications.database.models import User
 from applications.database.sec import datastore
 
@@ -15,7 +15,7 @@ class UserLogin(Resource):
         user = datastore.find_user(email=email)
         if not user:
             return {"message": "user not found"}, 404
-        if check_password_hash(user.password, data.get("password")):
+        if verify_password( data.get("password"),user.password):
             return {"token":user.get_auth_token(),"user_id":user.id,"role":user.roles[0].name }
 
         else:

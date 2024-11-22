@@ -59,15 +59,15 @@ export default Vue.component("edit-service", {
 
         const response = await fetch(url, {
           method: method,
-          headers: { "Content-Type": "application/json" },
+          headers: { "Content-Type": "application/json","Authorization-Token": localStorage.getItem("token") },
           body: JSON.stringify(this.service),
         });
         const result = await response.json();
 
         if (response.ok) {
           alert(this.isEditMode ? "Service updated successfully!" : "Service added successfully!");
-          this.$emit("service-saved"); // Emit event to notify parent
-          this.$emit("cancel"); // Close form
+          this.$emit("service-saved"); 
+          this.$emit("cancel"); 
         } else {
           alert(result.message || "Failed to save service.");
         }

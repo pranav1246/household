@@ -71,7 +71,7 @@ export default Vue.component("admin-dashboard", {
           </v-data-table>
         </v-card>
   
-        <!-- Service Requests Table -->
+       
         <v-card class="mt-4">
           <v-card-title>
             <h2>Service Requests</h2>
@@ -144,7 +144,7 @@ export default Vue.component("admin-dashboard", {
         try {
           const response = await fetch("/api/admin-dashboard", {
             method: "GET",
-            headers: { "authentication-token": localStorage.getItem("token") },
+            headers: { "Authorization-Token": localStorage.getItem("token") },
           });
           const data = await response.json();
           this.services = data.services;
@@ -160,7 +160,7 @@ export default Vue.component("admin-dashboard", {
       },
       async editService(serviceId) {
         try {
-          const response = await fetch(`/api/service/${serviceId}`);
+          const response = await fetch(`/api/service/${serviceId}`,{ headers: { "Authorization-Token": localStorage.getItem("token") },});
           const fullServiceDetails = await response.json();
           
           if (response.ok) {
@@ -188,6 +188,8 @@ export default Vue.component("admin-dashboard", {
         if (confirm("Are you sure you want to delete this service?")) {
           fetch(`/api/service/${serviceId}`, {
             method: "DELETE",
+            headers: { "Authorization-Token": localStorage.getItem("token") },
+
           })
             .then((response) => response.json())
             .then((result) => {
@@ -228,7 +230,7 @@ export default Vue.component("admin-dashboard", {
             method: "PUT",
             headers: {
               "Content-Type": "application/json",
-              "authentication-token": localStorage.getItem("token"),
+              "Authorization-Token": localStorage.getItem("token")
             },
             body: JSON.stringify({ user_id: userId }),
           });
@@ -254,6 +256,10 @@ export default Vue.component("admin-dashboard", {
         if (confirm("Are you sure you want to delete?")) {
           fetch(`/api/delete-professional/${profid}`, {
             method: "DELETE",
+             headers: {
+              "Content-Type": "application/json",
+              "Authorization-Token": localStorage.getItem("token")
+            },
           })
             .then((response) => response.json())
             .then((result) => {
@@ -274,38 +280,48 @@ export default Vue.component("admin-dashboard", {
         }
 
       },
-      async downloadReport(){
-        fetch('/download-csv')
-        .then((response)=>response.json())
-        .then((result)=>{
-           if(result.success){
-            task_id=result.task_id
-           }
-        }).catch((error) => {
-          console.error("Error deleting :", error);
-          alert("An error occurred.");
-        });
-
-        fetch(`get-csv/${task_id}`)
-        .then((response)=>response.json())
-        .then((result)=>{
-          if(result.success){
-            const blob=result.blob()
-            const fileUrl = window.URL.createObjectURL(blob);
-            const link = document.createElement("a");
-            link.href = fileUrl;
-            link.download = "result.csv"; 
-            document.body.appendChild(link);
-            link.click(); 
-            document.body.removeChild(link); 
-            window.URL.revokeObjectURL(fileUrl); 
-          }
-        }).catch((error) => {
-          console.error("Error deleting :", error);
-          alert("An error occurred.");
-        });
-
-      }
+      async downloadReport() {
+        try {
+            
+            const response1 = await fetch('/download-csv');
+            const result1 = await response1.json();
+            console.log(response1.ok,result1.success);
+            
+            if (response1.ok) {
+                const task_id = result1.task_id;
+    
+             
+                let csvReady = false;
+                while (!csvReady) {
+                    const response2 = await fetch(`/get-csv/${task_id}`);
+                    if (response2.ok) {
+                        const blob = await response2.blob();
+                        const fileUrl = window.URL.createObjectURL(blob);
+    
+                        const link = document.createElement("a");
+                        link.href = fileUrl;
+                        link.download = "result.csv";
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        window.URL.revokeObjectURL(fileUrl);
+    
+                        csvReady = true;
+                    } else {
+                        console.log("Task still pending...");
+                        await new Promise(resolve => setTimeout(resolve, 2000)); 
+                    }
+                }
+            } else {
+                console.error("Failed to start task:", result1.message);
+                alert("Failed to start the export task.");
+            }
+        } catch (error) {
+            console.error("Error during download:", error);
+            alert("An error occurred.");
+        }
+    }
+    
     },
     components: {
       EditServiceForm: () => import("./EditService.js"),

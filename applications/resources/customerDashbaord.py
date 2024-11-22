@@ -3,10 +3,12 @@ from flask_restful import Resource
 from flask_security import auth_required, roles_required,current_user
 from applications.database.models import Service, ServiceRequest, db
 from datetime import datetime
+from applications.instance import cache
 
 class CustomerDashboardAPI(Resource):
     @auth_required("token")
     @roles_required("Customer")
+    @cache.cached(timeout=100,key_prefix=lambda: f"service_history_{current_user.id}") 
     def get(self):
         # Fetch all available services
         services = Service.query.all()
@@ -27,7 +29,7 @@ class CustomerDashboardAPI(Resource):
         history_data = [
             {
                 "id": request.id,
-                "service_name": request.service.name,  # Assuming service relationship is set up in ServiceRequest
+                "service_name": request.service.name,  
                 "status": request.status,
                 "date_of_request": request.date_of_request.strftime("%Y-%m-%d"),
                 "remarks": request.remarks
@@ -41,9 +43,9 @@ class CustomerDashboardAPI(Resource):
         })
     
     @auth_required('token')
-    @roles_required('Service Professional')  
+    @roles_required('Customer')  
     def put(self, request_id):
-        # customer_id = current_user.id
+      
         service_request = ServiceRequest.query.get(request_id)
         if not service_request:
             return {"message": "Service request not found"}, 404
@@ -59,4 +61,5 @@ class CustomerDashboardAPI(Resource):
             service_request.status = 'closed'
             service_request.date_of_completion = datetime.now()
             db.session.commit()
+            cache.delete(f"service_history_{current_user.id}")
         return {"message": f"Service request {action}ed successfully"}, 200

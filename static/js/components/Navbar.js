@@ -11,10 +11,10 @@ export default {
       <v-btn text class="mx-2" :to="{ path: '/' }">
         Home
       </v-btn>
-      <v-btn text class="mx-2" :to="{ path: '/search' }">
+      <v-btn text v-if="role" class="mx-2" :to="{ path: '/search' }">
         Search
       </v-btn>
-      <v-btn text class="mx-2" :to="{ path: '/summary' }">
+      <v-btn v-if="role" text class="mx-2" :to="{ path: '/summary' }">
         Summary
       </v-btn>
 
@@ -62,15 +62,14 @@ export default {
   },
   data() {
     return {
-      showEditProfile: false, // Toggles the modal
-      userRole: "", // To store the role of the logged-in user
-      userId: null, // To store the ID of the logged-in user
+      showEditProfile: false, 
+      userRole: "", 
+      userId: null,
     };
   },
   methods: {
     logout() {
       this.$store.dispatch('logout');
-      localStorage.setItem('user_id')
     },
     async fetchUserInfo() {
       

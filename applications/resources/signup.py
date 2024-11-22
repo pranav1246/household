@@ -1,6 +1,6 @@
 from flask import request, current_app as app
 from flask_restful import Resource
-from werkzeug.security import generate_password_hash
+from flask_security.utils import hash_password
 from werkzeug.utils import secure_filename
 import os
 from applications.database.models import db, User, Role,Service,ProfessionalDetails
@@ -25,21 +25,15 @@ class CustomerSignup(Resource):
         address = data['address']
         pincode = data['pincode']
 
-        # Check if the user already exists
         if User.query.filter_by(email=email).first():
             return {"message": "User already exists"}, 400
 
-        # Ensure "Customer" role exists
-        customer_role = Role.query.filter_by(name="Customer").first()
-        if not customer_role:
-            customer_role = Role(name="Customer")
-            db.session.add(customer_role)
-            db.session.commit()
+        customer_role = "Customer"
 
-        # Create customer user
+       
         user = datastore.create_user(
             email=email,
-            password=generate_password_hash(password),
+            password=hash_password(password),
             phone_number=phone_number,
             name=name,
             address=address,
@@ -54,7 +48,7 @@ class CustomerSignup(Resource):
 
 class ProfessionalSignup(Resource):
     def post(self):
-        # File upload handling
+       
         if 'attached_docs' not in request.files:
             return {"message": "Attached document is required."}, 400
         
@@ -63,7 +57,7 @@ class ProfessionalSignup(Resource):
         if attached_docs.filename == '':
             return {"message": "No file selected."}, 400
 
-        # Save file securely
+        
         original_filename = secure_filename(attached_docs.filename)
         file_extension = original_filename.rsplit('.', 1)[1].lower()
         unique_filename = f"{uuid.uuid4()}.{file_extension}"
@@ -83,19 +77,15 @@ class ProfessionalSignup(Resource):
         experience_years = data.get('experience_years')
         address = data.get('address')
         pincode = data.get('pincode')
-        service_name = data.get('service_name')
+        service_id = data.get('service_name')
 
  
-        professional_role = Role.query.filter_by(name="Service Professional").first()
-        if not professional_role:
-            professional_role = Role(name="Service Professional")
-            db.session.add(professional_role)
-            db.session.commit()
+        professional_role ="Service Professional"
 
-        # Create the User record
+    
         new_user = datastore.create_user(
             email=email,
-            password=generate_password_hash(password),
+            password=hash_password(password),
             name=name,
             phone_number=phone_number,
             address=address,
@@ -104,22 +94,20 @@ class ProfessionalSignup(Resource):
         )
         db.session.add(new_user)
         db.session.commit()
+        
 
-        # Find or create the relevant service
-        service = Service.query.filter_by(name=service_name).first()
-        if not service:
-            return {"message": "Service not found."}, 400
 
-        # Create the ProfessionalDetails record linked to the new User
+      
         new_professional_details = ProfessionalDetails(
             user_id=new_user.id,
             experience_years=int(experience_years),
-            service_type_id=service.id,
+            service_type_id=service_id,
             rating=0.0,
-            is_active=True,
+            is_active=False,
             attached_docs_path=file_path
         )
         db.session.add(new_professional_details)
         db.session.commit()
 
         return {"message": "Professional registered successfully"}, 201
+    

@@ -39,7 +39,11 @@ def service_request_parser():
     return parser
 
 def update_service_req_parser():
+      
         parser = reqparse.RequestParser()
-        parser.add_argument('status', type=str, required=False, choices=('requested', 'assigned', 'closed'), help="Status of the service request.")
-        parser.add_argument('remarks', type=str, required=False, help="Remarks or comments.")
+        parser.add_argument('service_type', type=str, required=False)
+        parser.add_argument('description', type=str, required=False)
+        parser.add_argument('address', type=str, required=False)
+        parser.add_argument('pincode', type=str, required=False)
         return parser
+       

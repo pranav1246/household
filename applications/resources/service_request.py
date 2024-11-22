@@ -3,6 +3,7 @@ from flask_security import auth_required, roles_required, current_user
 from datetime import datetime
 from applications.database.models import db, ServiceRequest
 from applications.utils import service_request_parser,update_service_req_parser
+from applications.instance import cache
 
 class ServiceRequestResource(Resource):
     @auth_required('token')
@@ -14,45 +15,59 @@ class ServiceRequestResource(Resource):
         service_id = args['service_id']
         remarks = args.get('remarks', "")
 
-        # Create a new service request instance
+     
         new_request = ServiceRequest(
             service_id=service_id,
             customer_id=current_user.id,  
             remarks=remarks,
-            date_of_request=datetime.now(),  # Automatically sets today's date
+            date_of_request=datetime.now(),  
         )
 
-        # Add to session and commit
+  
         db.session.add(new_request)
         db.session.commit()
+        cache.delete(f"service_history_{current_user.id}")
 
         return {"message": "Service request created successfully.", "request_id": new_request.id}, 201
     
 
-    @auth_required("token")
-    @roles_required("Customer")
+    @auth_required('token')
+    @roles_required('Customer')
     def put(self, request_id):
-        
+      
         parser=update_service_req_parser()
         args = parser.parse_args()
-        
-        service_request = ServiceRequest.query.get(request_id)
+
+   
+        service_request = ServiceRequest.query.filter_by(id=request_id, customer_id=current_user.id).first()
         if not service_request:
-            return {"message": "Service request not found."}, 404
+            return {"message": "Service request not found or not authorized to edit."}, 404
 
-        if service_request.customer_id != current_user.id:
-            return {"message": "Unauthorized to edit this service request."}, 403
+   
+        if args['service_type']:
+            service_request.service_type = args['service_type']
+        if args['description']:
+            service_request.description = args['description']
+        if args['address']:
+            service_request.address = args['address']
+        if args['pincode']:
+            service_request.pincode = args['pincode']
 
-        
-        service_request.date_of_request = datetime.now()
+ 
+        db.session.commit()
+        cache.delete(f"service_history_{current_user.id}")
+        return {"message": "Service request updated successfully."}, 200
 
-    
-        if args['status']:
-            service_request.status = args['status']
-        if args['remarks']:
-            service_request.remarks = args['remarks']
+    @auth_required('token')
+    @roles_required('Customer')
+    def delete(self, request_id):
+      
+        service_request = ServiceRequest.query.filter_by(id=request_id, customer_id=current_user.id).first()
+        if not service_request:
+            return {"message": "Service request not found or not authorized to delete."}, 404
 
       
+        db.session.delete(service_request)
         db.session.commit()
-
-        return {"message": "Service request updated successfully."}, 200
+        cache.delete(f"service_history_{current_user.id}")
+        return {"message": "Service request deleted successfully."}, 200

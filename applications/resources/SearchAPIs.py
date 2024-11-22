@@ -3,17 +3,17 @@ from flask_restful import Resource
 from datetime import datetime
 from sqlalchemy import or_,String
 from applications.database.models import Service, ProfessionalDetails, User, ServiceRequest
-
+# from applications.instance import cache
 
 class GlobalSearchAPI(Resource):
+    # @cache.cached(timeout=600) 
     def get(self):
-        # Get the search query from the request
         search_query = request.args.get("query", "").strip()
         
         if not search_query:
             return {"error": "Query parameter is required"}, 400
 
-        # Prepare the search results
+
         response_data = {
             "services": [],
             "professionals": [],
@@ -22,7 +22,7 @@ class GlobalSearchAPI(Resource):
         }
 
         try:
-            # Match services by name
+        
             services = Service.query.filter(Service.name.ilike(f"%{search_query}%")).all()
             response_data["services"] = [
                 {
@@ -34,7 +34,7 @@ class GlobalSearchAPI(Resource):
                 for service in services
             ]
 
-            # Match professionals by name
+          
             professionals = (
                 ProfessionalDetails.query.join(User)
                 .filter(User.name.ilike(f"%{search_query}%"))
@@ -45,7 +45,7 @@ class GlobalSearchAPI(Resource):
                 for prof in professionals
             ]
 
-            # Match customers by name
+         
             customers = (
                 ServiceRequest.query.join(User, ServiceRequest.customer_id == User.id)
                 .filter(User.name.ilike(f"%{search_query}%"))
@@ -56,7 +56,7 @@ class GlobalSearchAPI(Resource):
                 for req in customers
             ]
 
-            # Match service requests by address, pincode, or date
+           
             service_requests_query = ServiceRequest.query.join(
                 User, ServiceRequest.customer_id == User.id
             ).filter(
@@ -66,12 +66,12 @@ class GlobalSearchAPI(Resource):
                 )
             )
 
-            # Try parsing the query as a date
+           
             try:
                 parsed_date = datetime.strptime(search_query, "%Y-%m-%d")
                 service_requests_query = service_requests_query.filter(ServiceRequest.date_of_request == parsed_date)
             except ValueError:
-                pass  # If it's not a date, ignore this filter
+                pass  
 
             service_requests = service_requests_query.all()
             response_data["service_requests"] = [

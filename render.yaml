@@ -75,7 +75,7 @@ services:
         fromGroup: household
 
   - name: household
-    type: postgres
+    type: database
     plan: free
     properties:
       databaseName:

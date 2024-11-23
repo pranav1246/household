@@ -3,7 +3,7 @@ from flask_security import auth_required, roles_required
 from applications.database.models import Service, ProfessionalDetails, ServiceRequest,User,db
 from flask import jsonify 
 from flask_restful import reqparse
-from applications.instance import cache
+# from applications.instance import cache
 
 
 
@@ -11,7 +11,7 @@ from applications.instance import cache
 class AdminDashboardResource(Resource):
     @auth_required('token')
     @roles_required("Admin")
-    @cache.cached(timeout=300) 
+    # @cache.cached(timeout=300) 
     def get(self):
       
         services = Service.query.all()
@@ -82,13 +82,13 @@ class AdminDashboardResource(Resource):
        
             professional_details.is_active = not professional_details.is_active
             db.session.commit()
-            cache.clear()
+            # cache.clear()
             
             return {"message": f"Professional status toggled to {professional_details.is_active}"}, 200
         else:
             user.active = not user.active
             db.session.commit()
-            cache.clear()
+            # cache.clear()
 
             return {"message": f"Customer status toggled to {user.active}"}, 200
         
@@ -112,7 +112,7 @@ class AdminDashboardResource(Resource):
             db.session.delete(professional)
             db.session.delete(user)
             db.session.commit()
-            cache.clear()
+            # cache.clear()
 
             return {"message": "Professional and associated user details deleted successfully."}, 200
         except Exception as e:

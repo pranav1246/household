@@ -3,7 +3,7 @@ from flask_security import auth_required, roles_required, current_user
 from datetime import datetime
 from applications.database.models import db, ServiceRequest
 from applications.utils import service_request_parser,update_service_req_parser
-from applications.instance import cache
+# from applications.instance import cache
 
 class ServiceRequestResource(Resource):
     @auth_required('token')
@@ -26,7 +26,7 @@ class ServiceRequestResource(Resource):
   
         db.session.add(new_request)
         db.session.commit()
-        cache.delete(f"service_history_{current_user.id}")
+        # cache.delete(f"service_history_{current_user.id}")
 
         return {"message": "Service request created successfully.", "request_id": new_request.id}, 201
     
@@ -55,7 +55,7 @@ class ServiceRequestResource(Resource):
 
  
         db.session.commit()
-        cache.delete(f"service_history_{current_user.id}")
+        # cache.delete(f"service_history_{current_user.id}")
         return {"message": "Service request updated successfully."}, 200
 
     @auth_required('token')
@@ -69,5 +69,5 @@ class ServiceRequestResource(Resource):
       
         db.session.delete(service_request)
         db.session.commit()
-        cache.delete(f"service_history_{current_user.id}")
+        # cache.delete(f"service_history_{current_user.id}")
         return {"message": "Service request deleted successfully."}, 200

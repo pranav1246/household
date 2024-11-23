@@ -40,16 +40,15 @@ const Home = {
       </v-main>
     </v-app>
   `,
-
   computed: {
     userRole() {
-      return this.$store.state.userRole || null; // Fetch user role from Vuex store
+      return this.$store.state.userRole || null; 
     },
     isLoginRoute() {
-      return this.$route.name === 'Home'; // Define what counts as the login route
+      return this.$route.name === 'Home'; 
     },
     currentComponent() {
-      // Determine the component to render based on the route name and user role
+      
       if (this.$route.name === 'Search') return 'Search';
       if (this.$route.name === 'Summary') return 'SummaryChart';
       if (this.$route.name === 'CustomerSignup') return 'CustomerSignup';
@@ -59,7 +58,7 @@ const Home = {
       if (this.userRole === 'Service Professional') return 'ProfessionalDashBoard';
       if (this.userRole === 'Customer') return 'CustomerDashBoard';
 
-      return null; // Default to null if no matching route
+      return null;
     },
   },
 

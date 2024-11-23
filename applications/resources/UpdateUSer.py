@@ -52,7 +52,7 @@ class UpdateProfessionalDetailsAPI(Resource):
         parser.add_argument('pincode', type=str, required=False)
         args = parser.parse_args()
 
-        professional = ProfessionalDetails.query.filter_by(id=professional_id).first()
+        professional = ProfessionalDetails.query.filter_by(user_id=professional_id).first()
         
         if not professional:
             return {"message": "Professional not found."}, 404
@@ -61,13 +61,13 @@ class UpdateProfessionalDetailsAPI(Resource):
         if args['experience_years'] is not None:
             professional.experience_years = args['experience_years']
         if args['email'] is not None:
-            professional.email = args['email']
+            professional.user.email = args['email']
         if args['phone_number'] is not None:
-            professional.phone_number = args['phone_number']
+            professional.user.phone_number = args['phone_number']
         if args['address'] is not None:
-            professional.address = args['address']
+            professional.user.address = args['address']
         if args['pincode'] is not None:
-            professional.pincode = args['pincode']
+            professional.user.pincode = args['pincode']
      
 
         try:

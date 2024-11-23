@@ -2,7 +2,7 @@ from flask import current_app as app, jsonify,send_file,render_template,send_fro
 from celery.result import AsyncResult
 from applications.task import export_closed_requests_as_csv
 from applications.database.models import  db,Service
-from applications.instance import cache
+# from applications.instance import cache
 
 
 
@@ -32,7 +32,7 @@ def serve_uploaded_file(filename):
 
 
 
-@cache.cached(timeout=500)
+# @cache.cached(timeout=500)
 @app.get("/all-service")
 def get_service_types():
     try:

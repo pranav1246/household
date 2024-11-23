@@ -2,14 +2,14 @@ from flask import jsonify,request
 from flask_restful import Resource
 from flask_security import auth_required, roles_required,current_user
 from applications.database.models import db, ServiceRequest, User,Review,ProfessionalDetails
-from applications.instance import cache
+# from applications.instance import cache
 
 
 
 class ProfessionalRequestsAPI(Resource):
     @auth_required('token')  
     @roles_required('Service Professional') 
-    @cache.cached(timeout=300)  
+    # @cache.cached(timeout=300)  
     def get(self):
         professional_id = current_user.id
         professional = ProfessionalDetails.query.filter_by(user_id=professional_id).first()
@@ -170,5 +170,5 @@ class ProfessionalRequestsAPI(Resource):
 
       
         db.session.commit()
-        cache.clear()
+        # cache.clear()
         return {"message": f"Service request {action}ed successfully"}, 200

@@ -24,6 +24,7 @@ export default Vue.component("login-form", {
       </v-card-text>
     </v-card>
   `,
+  
   data() {
     return {
       email: "",

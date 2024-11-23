@@ -3,12 +3,12 @@ from flask_restful import Resource
 from flask_security import auth_required, roles_required,current_user
 from applications.database.models import Service, ServiceRequest, db
 from datetime import datetime
-from applications.instance import cache
+# from applications.instance import cache
 
 class CustomerDashboardAPI(Resource):
     @auth_required("token")
     @roles_required("Customer")
-    @cache.cached(timeout=100,key_prefix=lambda: f"service_history_{current_user.id}") 
+    # @cache.cached(timeout=100,key_prefix=lambda: f"service_history_{current_user.id}") 
     def get(self):
         # Fetch all available services
         services = Service.query.all()
@@ -61,5 +61,5 @@ class CustomerDashboardAPI(Resource):
             service_request.status = 'closed'
             service_request.date_of_completion = datetime.now()
             db.session.commit()
-            cache.delete(f"service_history_{current_user.id}")
+            # cache.delete(f"service_history_{current_user.id}")
         return {"message": f"Service request {action}ed successfully"}, 200

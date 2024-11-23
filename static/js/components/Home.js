@@ -7,7 +7,7 @@ import CustomerSignup from "./Customer/CustomerSignup.js";
 import ProfSignup from "./Professional/Signup.js";
 import Search from "./Search.js";
 import SummaryChart from "./Summary.js";
-
+import Footer from "./Footer.js";
 
 const Home = {
   template: `
@@ -16,29 +16,51 @@ const Home = {
         <v-container>
           <Navbar />
 
-          <!-- Show Login Page if on Home Route and User Role is Not Defined -->
-          <v-card v-if="isLoginRoute && !userRole">
-            <v-card-title class="text-h5 text-center">Welcome to Our Platform</v-card-title>
+          <!-- Welcome Card -->
+          <v-card
+            v-if="isLoginRoute && !userRole"
+            class="pa-6 my-10"
+            elevation="10"
+            style="background: linear-gradient(to bottom right, #1e88e5, #64b5f6); color: white;"
+          >
+            <v-card-title class="text-h5 text-center" style="font-weight: bold;">
+              Welcome to Household Services
+            </v-card-title>
             <v-card-text>
-              <LoginPage />
-              <div class="d-flex justify-center mt-6">
-                <v-btn class="mx-2" color="success" @click="$router.push({ name: 'ProfessionalSignup' })">
-                  Signup as Professional
-                </v-btn>
-                <v-btn class="mx-2" color="secondary" @click="$router.push({ name: 'CustomerSignup' })">
-                  Signup as Customer
-                </v-btn>
+             
+                <LoginPage />
+                <div class="d-flex justify-center mt-6">
+                  <v-btn
+                    class="mx-2"
+                    color="success"
+                    large
+                    elevation="5"
+                    @click="$router.push({ name: 'ProfessionalSignup' })"
+                  >
+                    Signup as Professional
+                  </v-btn>
+                  <v-btn
+                    class="mx-2"
+                    color="secondary"
+                    large
+                    elevation="5"
+                    @click="$router.push({ name: 'CustomerSignup' })"
+                  >
+                    Signup as Customer
+                  </v-btn>
+                </div>
               </div>
             </v-card-text>
           </v-card>
 
-          <!-- Show Appropriate Component Based on Route Name -->
-          <div v-else>
+          <!-- Dashboard / Other Components -->
+          <v-card v-else elevation="5" class="fade-in-animation">
             <component :is="currentComponent" />
-          </div>
+          </v-card>
         </v-container>
       </v-main>
     </v-app>
+  
   `,
   computed: {
     userRole() {
@@ -48,7 +70,6 @@ const Home = {
       return this.$route.name === 'Home'; 
     },
     currentComponent() {
-      
       if (this.$route.name === 'Search') return 'Search';
       if (this.$route.name === 'Summary') return 'SummaryChart';
       if (this.$route.name === 'CustomerSignup') return 'CustomerSignup';
@@ -61,7 +82,6 @@ const Home = {
       return null;
     },
   },
-
   components: {
     AdminDashBoard,
     ProfessionalDashBoard,
@@ -72,6 +92,7 @@ const Home = {
     ProfSignup,
     Search,
     SummaryChart,
+    Footer
   },
 };
 

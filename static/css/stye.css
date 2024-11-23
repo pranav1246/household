@@ -1,0 +1,19 @@
+/* Home component specific CSS */
+.site-layout {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+  }
+  
+  .site-layout v-main {
+    flex: 1; /* Allows main content to grow and fill available space */
+  }
+  
+  .site-layout v-footer {
+    margin-top: auto;
+  }
+  
+
+body{
+    background-color:primary;
+}
